@@ -1,0 +1,617 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b14">
+<title>FounderNest — Build Together</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --bg:#080b14;
+  --panel:#111827;
+  --panel2:#151e30;
+  --border:#28344a;
+  --text:#f4f6ff;
+  --muted:#9aa8c1;
+  --accent:#9785ff;
+  --green:#63e6b2;
+  --red:#ff8a9b;
+  --radius:18px;
+}
+* {box-sizing:border-box}
+html {scroll-behavior:smooth;scroll-padding-top:100px}
+body {
+  margin:0;background:
+  radial-gradient(ellipse at 5% 0%,#29205255,transparent 38%),
+  radial-gradient(ellipse at 100% 20%,#122e4c44,transparent 35%),var(--bg);
+  color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.6;
+}
+button,input,textarea,select {font:inherit}
+button,a {touch-action:manipulation}
+button {cursor:pointer}
+a {color:inherit;text-decoration:none}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible {
+  outline:2px solid var(--accent);outline-offset:3px
+}
+.hidden {display:none!important}
+.container {width:min(1160px,calc(100% - 32px));margin:auto}
+.navbar {
+  position:sticky;top:0;z-index:20;background:#080b14ed;
+  backdrop-filter:blur(18px);border-bottom:1px solid #ffffff12
+}
+.nav-inner {min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand {display:flex;align-items:center;gap:11px;font-size:21px;font-weight:850;letter-spacing:-.6px}
+.brand-icon {
+  display:grid;place-items:center;width:42px;height:42px;border-radius:14px;
+  background:linear-gradient(135deg,#a394ff,#6654d9);box-shadow:0 7px 28px #7864ff35
+}
+.brand-name span {color:var(--accent)}
+.nav-actions {display:flex;align-items:center;gap:12px}
+.user-email {max-width:220px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.btn {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 15px;border:1px solid var(--border);border-radius:11px;
+  background:var(--panel2);color:var(--text);font-size:13px;font-weight:750;
+  transition:transform .2s,border-color .2s
+}
+.btn:hover {border-color:var(--accent);transform:translateY(-1px)}
+.btn-primary {border-color:transparent;background:linear-gradient(135deg,#9b8aff,#6956df);color:white}
+.btn-primary:hover {background:linear-gradient(135deg,#afa2ff,#7a67ef)}
+.btn-danger {color:var(--red);border-color:#ff8a9b35;background:#ff8a9b0c}
+.btn-small {padding:7px 10px;font-size:12px}
+.full-width {width:100%}
+.quick-nav {
+  position:relative;display:flex;flex-wrap:wrap;gap:6px;margin:20px 0 24px;
+  padding:10px;border:1px solid var(--border);border-radius:15px;background:#101625eF
+}
+.quick-nav a {
+  padding:8px 12px;border-radius:9px;color:var(--muted);font-size:12px;font-weight:750;
+  transition:background .2s,color .2s
+}
+.quick-nav a:hover,.quick-nav a:focus-visible {background:#9785ff18;color:var(--text)}
+main {padding:0 0 60px}
+.hero {
+  position:relative;overflow:hidden;padding:44px;border:1px solid #a394ff2b;border-radius:25px;
+  background:radial-gradient(ellipse at 90% 0%,#8874ff25,transparent 42%),linear-gradient(130deg,#151b2d,#101625)
+}
+.eyebrow {display:inline-flex;align-items:center;gap:8px;color:var(--green);font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:1.5px}
+.dot {width:7px;height:7px;border-radius:50%;background:var(--green)}
+h1 {font-size:clamp(34px,5vw,54px);line-height:1.12;letter-spacing:-1.8px;max-width:690px;margin:17px 0}
+.gradient-text {color:var(--accent)}
+.hero p {max-width:590px;margin:0 0 23px;color:var(--muted);font-size:15px}
+.hero-actions {display:flex;flex-wrap:wrap;gap:10px}
+.stats {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0 36px}
+.stat-card {padding:20px;border:1px solid var(--border);border-radius:16px;background:#111827cc}
+.stat-number {font-size:29px;font-weight:850;letter-spacing:-1px}
+.stat-label {font-size:12px;color:var(--muted)}
+.section {margin-top:35px;scroll-margin-top:100px}
+.section-heading {display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:17px}
+.section-heading h2 {font-size:23px;letter-spacing:-.6px;margin:0}
+.section-heading p {font-size:12px;color:var(--muted);margin:4px 0 0}
+.section-label {font-size:10px;color:var(--accent);font-weight:850;letter-spacing:1.5px;text-transform:uppercase}
+.panel {padding:24px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,#141c2c,#0f1522);min-width:0}
+.panel h3 {margin:0 0 5px;font-size:18px}
+.panel-subtitle {color:var(--muted);font-size:13px;margin:0 0 20px}
+.field {margin-bottom:15px}
+.field label {display:block;margin-bottom:6px;font-size:12px;font-weight:750;color:#dbe1f3}
+.field input,.field textarea,.field select {
+  display:block;width:100%;min-width:0;padding:12px 13px;border:1px solid var(--border);
+  border-radius:10px;background:#0b1120;color:var(--text);outline:none
+}
+.field input:focus,.field textarea:focus,.field select:focus {border-color:var(--accent);box-shadow:0 0 0 3px #9785ff18}
+.field textarea {min-height:95px;resize:vertical}
+.field input::placeholder,.field textarea::placeholder {color:#65728a}
+.check-row {display:flex;align-items:center;gap:9px;margin:16px 0;color:#dbe1f3;font-size:12px}
+.check-row input {width:17px;height:17px;accent-color:var(--accent)}
+.message {margin:13px 0;padding:11px 13px;border:1px solid var(--border);border-radius:10px;font-size:12px;overflow-wrap:anywhere}
+.message:empty {display:none}
+.message.success {color:var(--green);border-color:#63e6b238;background:#63e6b20a}
+.message.error {color:var(--red);border-color:#ff8a9b38;background:#ff8a9b0a}
+.auth-wrap {max-width:490px;margin:35px auto}
+.auth-panel {padding:28px;border:1px solid var(--border);border-radius:22px;background:var(--panel)}
+.auth-panel h1 {font-size:32px;letter-spacing:-1px;margin:12px 0}
+.auth-switch {display:flex;gap:8px;margin:20px 0}
+.auth-switch button {flex:1}
+.cards {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.item-card {min-width:0;padding:19px;border:1px solid var(--border);border-radius:16px;background:#121a29;transition:border-color .2s,transform .2s}
+.item-card:hover {border-color:#8979ff70;transform:translateY(-2px)}
+.item-top {display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.person-heading {display:flex;align-items:center;gap:11px;min-width:0}
+.avatar {
+  flex-shrink:0;display:grid;place-items:center;width:43px;height:43px;border-radius:13px;
+  color:white;font-weight:850;background:linear-gradient(135deg,#9b8aff,#4f46a5)
+}
+.item-card h4 {font-size:15px;margin:0;overflow-wrap:anywhere}
+.role {color:var(--accent);font-size:11px;margin-top:2px;text-transform:capitalize}
+.item-description {color:var(--muted);font-size:12px;margin:14px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.tag-list {display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.tag {padding:4px 8px;border:1px solid #9785ff27;border-radius:7px;background:#9785ff12;color:#c7beff;font-size:10px;overflow-wrap:anywhere}
+.status {display:inline-flex;padding:4px 8px;border-radius:7px;background:#63e6b211;color:var(--green);font-size:10px;font-weight:850;white-space:nowrap}
+.status.private {background:#9aa8c11a;color:#c3cce0}
+.empty {grid-column:1/-1;padding:30px 18px;border:1px dashed var(--border);border-radius:14px;text-align:center;color:var(--muted);font-size:12px}
+.empty strong {display:block;color:var(--text);font-size:14px;margin-bottom:5px}
+.item-actions {display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+footer {margin-top:50px;padding:23px 0;border-top:1px solid #ffffff12;color:var(--muted);font-size:11px;text-align:center}
+.loading {opacity:.65;pointer-events:none}
+@media(max-width:760px) {
+  .container {width:calc(100% - 24px)}
+  .nav-inner {min-height:64px}
+  .brand {font-size:18px}
+  .brand-icon {width:37px;height:37px}
+  .user-email {display:none}
+  .hero {padding:28px 22px;border-radius:20px}
+  h1 {letter-spacing:-1.2px}
+  .stats {gap:8px;margin:17px 0 28px}
+  .stat-card {padding:14px 10px}
+  .stat-number {font-size:24px}
+  .stat-label {font-size:10px}
+  .cards {grid-template-columns:1fr}
+  .panel {padding:19px}
+  .section-heading h2 {font-size:21px}
+  .quick-nav {gap:3px}
+  .quick-nav a {padding:8px;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+</head>
+
+<body>
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a class="brand" href="#" aria-label="FounderNest home">
+      <span class="brand-icon">F</span>
+      <span class="brand-name">Founder<span>Nest</span></span>
+    </a>
+    <div class="nav-actions">
+      <span id="userEmail" class="user-email"></span>
+      <button id="logoutBtn" class="btn hidden" type="button">Log out</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <section id="authSection" class="auth-wrap">
+    <div class="auth-panel">
+      <span class="eyebrow"><span class="dot"></span> Your next chapter starts here</span>
+      <h1>Meet your people.<br><span class="gradient-text">Build your idea.</span></h1>
+      <p class="panel-subtitle">Connect with founders, co-founders, and builders who want to create something meaningful.</p>
+      <div class="auth-switch">
+        <button id="showLogin" class="btn btn-primary" type="button">Log in</button>
+        <button id="showSignup" class="btn" type="button">Create account</button>
+      </div>
+      <form id="loginForm">
+        <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+        <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Your password" required></div>
+        <button class="btn btn-primary full-width" type="submit">Log in to FounderNest</button>
+      </form>
+      <form id="signupForm" class="hidden">
+        <div class="field"><label for="signupEmail">Email address</label><input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+        <div class="field"><label for="signupPassword">Create password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required></div>
+        <button class="btn btn-primary full-width" type="submit">Create my account</button>
+      </form>
+      <div id="authMessage" class="message" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <div id="appSection" class="hidden">
+    <nav class="quick-nav" aria-label="Dashboard navigation">
+      function showDashboardSection(sectionId) {
+  document.querySelectorAll(".dashboard-section").forEach(section => {
+    section.classList.add("hidden");
+  });
+
+      <a href="#overview">Overview</a>
+      <a href="#myProfile">My Profile</a>
+      <a href="#people">Explore People</a>
+      <a href="#createProject">Launch Project</a>
+      <a href="#projects">Explore Projects</a>
+    </nav>
+
+    <section id="overview" class="hero">
+      <span class="eyebrow"><span class="dot"></span> Ideas grow together</span>
+      <h1>Ideas need people.<br><span class="gradient-text">Build together.</span></h1>
+      <p>Find the right people for your next big idea. Share your skills, discover exciting projects, and build your future with FounderNest.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#people">Explore people ↗</a>
+        <a class="btn" href="#createProject">Launch a project</a>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Dashboard statistics">
+      <div class="stat-card"><div id="peopleCount" class="stat-number">—</div><div class="stat-label">Public profiles</div></div>
+      <div class="stat-card"><div id="projectsCount" class="stat-number">—</div><div class="stat-label">Projects available</div></div>
+      <div class="stat-card"><div id="myProjectsCount" class="stat-number">—</div><div class="stat-label">Your projects</div></div>
+    </section>
+
+    <section id="myProfile" class="section">
+      <div class="section-heading"><div><div class="section-label">Your identity</div><h2>My Profile</h2><p>Tell the community who you are and what you can build.</p></div></div>
+      <div class="panel">
+        <form id="profileForm">
+          <div class="field"><label for="fullName">Full name</label><input id="fullName" maxlength="80" placeholder="Your name" required></div>
+          <div class="field"><label for="profileRole">I want to join as...</label>
+            <select id="profileRole" required>
+              <option value="founders">Founder — I have an idea</option>
+              <option value="cofounders">Co-founder — I want to build with someone</option>
+              <option value="builders">Builder — I want to contribute my skills</option>
+            </select>
+          </div>
+          <div class="field"><label for="bio">About me</label><textarea id="bio" maxlength="1000" placeholder="Your interests, ideas, and goals..."></textarea></div>
+          <div class="field"><label for="skills">Skills</label><input id="skills" maxlength="500" placeholder="Coding, UI/UX, marketing"><small style="color:var(--muted)">Separate skills with commas.</small></div>
+          <label class="check-row"><input id="profilePublished" type="checkbox"> Make my profile visible to the community</label>
+          <button id="saveProfileBtn" class="btn btn-primary" type="submit">Save profile</button>
+        </form>
+        <div id="profileMessage" class="message" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="people" class="section">
+      <div class="section-heading"><div><div class="section-label">Find your team</div><h2>Explore people</h2><p>Discover founders, co-founders, and builders.</p></div><button id="refreshPeople" class="btn btn-small" type="button">Refresh</button></div>
+      <div id="peopleList" class="cards"><div class="empty">Loading profiles...</div></div>
+      <div id="peopleMessage" class="message" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="createProject" class="section">
+      <div class="section-heading"><div><div class="section-label">Turn ideas into action</div><h2>Launch a project</h2><p>Tell people what you're building and what skills you need.</p></div></div>
+      <div class="panel">
+        <form id="projectForm">
+          <div class="field"><label for="projectTitle">Project name</label><input id="projectTitle" maxlength="120" placeholder="e.g. Student startup platform" required></div>
+          <div class="field"><label for="projectDescription">Project description</label><textarea id="projectDescription" maxlength="3000" placeholder="What are you building? What problem does it solve?"></textarea></div>
+          <div class="field"><label for="projectSkills">Skills you're looking for</label><input id="projectSkills" maxlength="500" placeholder="Frontend, design, marketing"></div>
+          <label class="check-row"><input id="projectPublished" type="checkbox" checked> Publish this project for the community</label>
+          <button id="createProjectBtn" class="btn btn-primary" type="submit">Create project</button>
+        </form>
+        <div id="projectMessage" class="message" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <div class="section-heading"><div><div class="section-label">Made for builders</div><h2>Explore projects</h2><p>Discover projects and manage your own ideas.</p></div><button id="refreshProjects" class="btn btn-small" type="button">Refresh</button></div>
+      <div id="projectList" class="cards"><div class="empty">Loading projects...</div></div>
+      <div id="projectsMessage" class="message" role="status" aria-live="polite"></div>
+    </section>
+  </div>
+</main>
+
+<footer><div class="container">FounderNest © <span id="year"></span> · Find your people. Build your future.</div></footer>
+
+<script>
+"use strict";
+
+// Existing Supabase project connection
+const SUPABASE_URL = "https://lzbssrddejzdgevnayox.supabase.co";
+const SUPABASE_KEY = "sb_publishable_kz1aMHkWoILt7OhmAd4-sQ_HLqNEvaQ";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let currentUser = null;
+let authRequestInProgress = false;
+let dashboardLoadId = 0;
+let ownProjectIds = new Set();
+
+$("year").textContent = new Date().getFullYear();
+
+function message(id, text = "", type = "") {
+  const el = $(id);
+  el.textContent = text;
+  el.className = "message" + (type ? " " + type : "");
+}
+function errorText(error) {
+  const msg = error?.message || "Something went wrong. Please try again.";
+  if (msg.includes("Invalid login credentials")) return "Email or password is incorrect.";
+  if (msg.includes("User already registered")) return "This account already exists. Please log in.";
+  if (msg.toLowerCase().includes("row-level security")) return "Supabase permissions blocked this action. Check your RLS policies.";
+  return msg;
+}
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function parseSkills(value) {
+  return String(value || "").split(",").map(x => x.trim()).filter(Boolean).slice(0,30);
+}
+function roleName(role) {
+  return ({founders:"Founder",cofounders:"Co-founder",builders:"Builder"})[role] || "Community member";
+}
+function skillTags(skills) {
+  if (!Array.isArray(skills) || !skills.length) return '<span class="tag">Open to opportunities</span>';
+  return skills.map(skill => `<span class="tag">${esc(skill)}</span>`).join("");
+}
+function busy(form, state) {
+  form.classList.toggle("loading",state);
+  form.querySelectorAll("button").forEach(b => b.disabled = state);
+}
+function showAuth() {
+  currentUser = null;
+  $("authSection").classList.remove("hidden");
+  $("appSection").classList.add("hidden");
+  $("logoutBtn").classList.add("hidden");
+  $("userEmail").textContent = "";
+}
+function showApp(user) {
+  currentUser = user;
+  $("authSection").classList.add("hidden");
+  $("appSection").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
+  $("userEmail").textContent = user.email || "Signed in";
+}
+function authMode(mode) {
+  const login = mode === "login";
+  $("loginForm").classList.toggle("hidden",!login);
+  $("signupForm").classList.toggle("hidden",login);
+  $("showLogin").classList.toggle("btn-primary",login);
+  $("showSignup").classList.toggle("btn-primary",!login);
+  message("authMessage");
+}
+$("showLogin").addEventListener("click",() => authMode("login"));
+$("showSignup").addEventListener("click",() => authMode("signup"));
+
+$("signupForm").addEventListener("submit",async e => {
+  e.preventDefault();
+  if (authRequestInProgress) return;
+  authRequestInProgress = true;
+  busy($("signupForm"),true);
+  message("authMessage");
+  try {
+    const {data,error} = await db.auth.signUp({
+      email:$("signupEmail").value.trim(),
+      password:$("signupPassword").value
+    });
+    if (error) throw error;
+    if (data.session) {
+      message("authMessage","Account created successfully!","success");
+    } else {
+      message("authMessage","Account submitted. Check your email if confirmation is enabled, then log in.","success");
+      $("signupForm").reset();
+    }
+  } catch (err) {
+    message("authMessage",errorText(err),"error");
+  } finally {
+    authRequestInProgress = false;
+    busy($("signupForm"),false);
+  }
+});
+
+$("loginForm").addEventListener("submit",async e => {
+  e.preventDefault();
+  if (authRequestInProgress) return;
+  authRequestInProgress = true;
+  busy($("loginForm"),true);
+  message("authMessage");
+  try {
+    const {error} = await db.auth.signInWithPassword({
+      email:$("loginEmail").value.trim(),
+      password:$("loginPassword").value
+    });
+    if (error) throw error;
+  } catch (err) {
+    message("authMessage",errorText(err),"error");
+  } finally {
+    authRequestInProgress = false;
+    busy($("loginForm"),false);
+  }
+});
+
+$("logoutBtn").addEventListener("click",async () => {
+  $("logoutBtn").disabled = true;
+  try {
+    const {error} = await db.auth.signOut();
+    if (error) throw error;
+  } catch (err) {
+    alert(errorText(err));
+  } finally {
+    $("logoutBtn").disabled = false;
+  }
+});
+
+async function loadProfile() {
+  if (!currentUser) return;
+  message("profileMessage");
+  const {data,error} = await db.from("profiles")
+    .select("id,full_name,role,bio,skills,published")
+    .eq("id",currentUser.id).maybeSingle();
+  if (error) {
+    message("profileMessage",errorText(error),"error");
+    return;
+  }
+  $("fullName").value = data?.full_name || "";
+  $("profileRole").value = data?.role || "founders";
+  $("bio").value = data?.bio || "";
+  $("skills").value = Array.isArray(data?.skills) ? data.skills.join(", ") : "";
+  $("profilePublished").checked = Boolean(data?.published);
+}
+
+$("profileForm").addEventListener("submit",async e => {
+  e.preventDefault();
+  if (!currentUser) return;
+  const button = $("saveProfileBtn");
+  button.disabled = true;
+  message("profileMessage");
+  try {
+    const profile = {
+      id:currentUser.id,
+      full_name:$("fullName").value.trim(),
+      role:$("profileRole").value,
+      bio:$("bio").value.trim(),
+      skills:parseSkills($("skills").value),
+      published:$("profilePublished").checked
+    };
+    if (!profile.full_name) throw new Error("Please enter your name.");
+    const {error} = await db.from("profiles").upsert(profile,{onConflict:"id"});
+    if (error) throw error;
+    message("profileMessage",profile.published ? "Profile saved and published!" : "Profile saved privately.","success");
+    await loadPeople();
+  } catch (err) {
+    message("profileMessage",errorText(err),"error");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+async function loadPeople() {
+  $("peopleList").innerHTML = '<div class="empty">Loading profiles...</div>';
+  message("peopleMessage");
+  const {data,error} = await db.from("profiles")
+    .select("id,full_name,role,bio,skills,published")
+    .eq("published",true)
+    .order("created_at",{ascending:false})
+    .limit(60);
+  if (error) {
+    $("peopleList").innerHTML = "";
+    $("peopleCount").textContent = "—";
+    message("peopleMessage",errorText(error),"error");
+    return;
+  }
+  const people = data || [];
+  $("peopleCount").textContent = people.length;
+  if (!people.length) {
+    $("peopleList").innerHTML = '<div class="empty"><strong>No public profiles yet</strong>Publish your profile to help grow the community.</div>';
+    return;
+  }
+  $("peopleList").innerHTML = people.map(person => {
+    const name = person.full_name || "FounderNest member";
+    const initial = name.trim().charAt(0).toUpperCase() || "F";
+    return `<article class="item-card">
+      <div class="item-top">
+        <div class="person-heading">
+          <div class="avatar">${esc(initial)}</div>
+          <div style="min-width:0"><h4>${esc(name)}</h4><div class="role">${esc(roleName(person.role))}</div></div>
+        </div>
+        <span class="status">Public</span>
+      </div>
+      <p class="item-description">${esc(person.bio || "Ready to connect, learn, and build.")}</p>
+      <div class="tag-list">${skillTags(person.skills)}</div>
+    </article>`;
+  }).join("");
+}
+$("refreshPeople").addEventListener("click",loadPeople);
+
+$("projectForm").addEventListener("submit",async e => {
+  e.preventDefault();
+  if (!currentUser) return;
+  const button = $("createProjectBtn");
+  button.disabled = true;
+  message("projectMessage");
+  try {
+    const project = {
+      founder_id:currentUser.id,
+      title:$("projectTitle").value.trim(),
+      description:$("projectDescription").value.trim(),
+      skills:parseSkills($("projectSkills").value),
+      published:$("projectPublished").checked
+    };
+    if (!project.title) throw new Error("Please enter a project name.");
+    const {error} = await db.from("projects").insert(project);
+    if (error) throw error;
+    $("projectForm").reset();
+    $("projectPublished").checked = true;
+    message("projectMessage",project.published ? "Project created and published!" : "Project saved privately.","success");
+    await loadProjects();
+  } catch (err) {
+    message("projectMessage",errorText(err),"error");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+async function loadProjects() {
+  $("projectList").innerHTML = '<div class="empty">Loading projects...</div>';
+  message("projectsMessage");
+  const {data,error} = await db.from("projects")
+    .select("id,founder_id,title,description,skills,published,created_at")
+    .order("created_at",{ascending:false}).limit(100);
+  if (error) {
+    $("projectList").innerHTML = "";
+    $("projectsCount").textContent = "—";
+    $("myProjectsCount").textContent = "—";
+    message("projectsMessage",errorText(error),"error");
+    return;
+  }
+  const projects = data || [];
+  ownProjectIds = new Set(projects.filter(p => p.founder_id === currentUser.id).map(p => p.id));
+  $("projectsCount").textContent = projects.filter(p => p.published || p.founder_id === currentUser.id).length;
+  $("myProjectsCount").textContent = ownProjectIds.size;
+  if (!projects.length) {
+    $("projectList").innerHTML = '<div class="empty"><strong>No projects yet</strong>Create your first project and bring your idea to life.</div>';
+    return;
+  }
+  $("projectList").innerHTML = projects.map(project => {
+    const mine = project.founder_id === currentUser.id;
+    const status = project.published ? '<span class="status">Published</span>' : '<span class="status private">Private</span>';
+    const actions = mine ? `<div class="item-actions"><button class="btn btn-danger btn-small" type="button" data-delete-project="${esc(project.id)}">Delete project</button></div>` : "";
+    return `<article class="item-card">
+      <div class="item-top">
+        <div style="min-width:0"><h4>${esc(project.title)}</h4><div class="role">${mine ? "Your project" : "Community project"}</div></div>
+        ${status}
+      </div>
+      <p class="item-description">${esc(project.description || "A new idea looking for its next step.")}</p>
+      <div class="tag-list">${skillTags(project.skills)}</div>
+      ${actions}
+    </article>`;
+  }).join("");
+}
+
+$("projectList").addEventListener("click",async e => {
+  const button = e.target.closest("[data-delete-project]");
+  if (!button || !currentUser) return;
+  const id = button.dataset.deleteProject;
+  if (!ownProjectIds.has(id)) {
+    message("projectsMessage","You can only delete your own projects.","error");
+    return;
+  }
+  if (!confirm("Delete this project permanently?")) return;
+  button.disabled = true;
+  try {
+    const {error} = await db.from("projects").delete().eq("id",id).eq("founder_id",currentUser.id);
+    if (error) throw error;
+    message("projectsMessage","Project deleted.","success");
+    await loadProjects();
+  } catch (err) {
+    message("projectsMessage",errorText(err),"error");
+    button.disabled = false;
+  }
+});
+
+$("refreshProjects").addEventListener("click",loadProjects);
+
+async function openDashboard(user) {
+  const thisLoad = ++dashboardLoadId;
+  showApp(user);
+  await Promise.all([loadProfile(),loadPeople(),loadProjects()]);
+  if (thisLoad !== dashboardLoadId) return;
+}
+
+db.auth.onAuthStateChange((event,session) => {
+  if (session?.user) {
+    showApp(session.user);
+    // Avoid running database requests inside the auth callback.
+    Promise.resolve().then(() => {
+      if (currentUser?.id === session.user.id) openDashboard(session.user);
+    });
+  } else {
+    dashboardLoadId++;
+    showAuth();
+  }
+});
+
+async function initialize() {
+  try {
+    const {data,error} = await db.auth.getSession();
+    if (error) throw error;
+    if (data.session?.user) await openDashboard(data.session.user);
+    else showAuth();
+  } catch (err) {
+    showAuth();
+    message("authMessage",errorText(err),"error");
+  }
+}
+initialize();
+</script>
+</body>
+</html>
