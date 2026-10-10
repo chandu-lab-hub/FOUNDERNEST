@@ -1,0 +1,540 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FounderNest — Join the Nest</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #080b14;
+  color: #f5f7ff;
+  font-family: Arial, sans-serif;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.app {
+  width: 100%;
+  max-width: 490px;
+}
+
+.brand {
+  font-size: 25px;
+  font-weight: 800;
+  margin-bottom: 35px;
+}
+
+.brand span {
+  color: #91a7ff;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #9da9c5;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.track {
+  height: 4px;
+  background: #222b40;
+  border-radius: 9px;
+  margin: 14px 0 35px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 16.66%;
+  background: #91a7ff;
+  transition: width .35s;
+}
+
+.panel {
+  animation: enter .35s ease;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h1 {
+  font-size: clamp(28px, 7vw, 38px);
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+
+.sub {
+  color: #aab5d0;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.options {
+  display: grid;
+  gap: 12px;
+}
+
+.option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 17px;
+  border: 1px solid #2a3550;
+  background: #101729;
+  color: white;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.option:hover,
+.option.selected {
+  border-color: #91a7ff;
+  background: #182341;
+}
+
+.emoji {
+  font-size: 25px;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.info strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.info small {
+  color: #aab5d0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.arrow {
+  color: #91a7ff;
+  font-size: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #34415e;
+  border-radius: 12px;
+  background: #101729;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+input:focus {
+  border-color: #91a7ff;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+button.next,
+button.back {
+  padding: 14px 18px;
+  border-radius: 11px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.next {
+  flex: 1;
+  background: #91a7ff;
+  border: 0;
+  color: #080b14;
+}
+
+.back {
+  background: transparent;
+  border: 1px solid #34415e;
+  color: white;
+}
+
+.next:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.note {
+  min-height: 20px;
+  color: #ffb4b4;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.summary-label {
+  color: #91a7ff;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+
+  <div class="brand">Founder<span>Nest</span></div>
+
+  <div class="top">
+    <span>YOUR JOURNEY STARTS HERE</span>
+    <span id="count">01 / 06</span>
+  </div>
+
+  <div class="track">
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <section id="panel" class="panel"></section>
+
+  <div class="actions">
+    <button class="back" id="back" hidden>
+      ← Back
+    </button>
+    <button class="next" id="next" disabled>
+      Continue →
+    </button>
+  </div>
+
+  <div class="note" id="note" aria-live="polite"></div>
+</main>
+
+<script>
+const steps = [
+  {
+    title: "What should we call you?",
+    sub: "Tell us your first and last name.",
+    key: "name",
+    fields: [
+      {
+        key: "firstName",
+        placeholder: "First name",
+        autocomplete: "given-name"
+      },
+      {
+        key: "lastName",
+        placeholder: "Last name",
+        autocomplete: "family-name"
+      }
+    ]
+  },
+  {
+    title: "What brings you to FounderNest?",
+    sub: "Choose the path that fits you best.",
+    key: "role",
+    options: [
+      ["🚀", "I'm a Founder", "I have an idea to build"],
+      ["🛠️", "I'm a Builder", "I want to join a project"],
+      ["✨", "Both", "I want to build and collaborate"]
+    ]
+  },
+  {
+    title: "Where can we reach you?",
+    sub: "Use an email address you can access.",
+    key: "email",
+    placeholder: "you@example.com",
+    type: "email"
+  },
+  {
+    title: "What are you good at?",
+    sub: "Pick your main skill to get relevant matches.",
+    key: "skill",
+    options: [
+      ["💻", "Coding", "Web, app or software development"],
+      ["🎨", "Design", "UI/UX, graphics or branding"],
+      ["📈", "Marketing", "Content, growth or social media"],
+      ["💡", "Business", "Ideas, research or strategy"],
+      ["✍️", "Content", "Writing, video or storytelling"]
+    ]
+  },
+  {
+    title: "Create a password",
+    sub: "Use at least 8 characters.",
+    key: "password",
+    placeholder: "At least 8 characters",
+    type: "password"
+  },
+  {
+    title: "Ready to join the nest?",
+    sub: "Review your details before finishing.",
+    key: "confirm",
+    final: true
+  }
+];
+
+let index = 0;
+const answers = {};
+
+const panel = document.getElementById("panel");
+const next = document.getElementById("next");
+const back = document.getElementById("back");
+const note = document.getElementById("note");
+
+function valid(s, value) {
+  if (s.key === "email") {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
+  if (s.key === "password") {
+    return value.length >= 8;
+  }
+
+  return value.trim().length >= 2;
+}
+
+function stepValid(s) {
+  if (s.fields) {
+    return s.fields.every(field =>
+      (answers[field.key] || "").trim().length >= 2
+    );
+  }
+
+  if (s.final) return true;
+
+  if (s.options) return !!answers[s.key];
+
+  return valid(s, answers[s.key] || "");
+}
+
+function createSummaryRow(label, value) {
+  const row = document.createElement("div");
+  row.className = "option";
+  row.style.cursor = "default";
+
+  const info = document.createElement("div");
+  info.className = "info";
+
+  const strong = document.createElement("strong");
+  strong.textContent = label;
+
+  const small = document.createElement("small");
+  small.textContent = value || "Not provided";
+
+  info.append(strong, small);
+  row.append(info);
+
+  return row;
+}
+
+function render() {
+  const s = steps[index];
+
+  document.getElementById("count").textContent =
+    String(index + 1).padStart(2, "0") +
+    " / " +
+    String(steps.length).padStart(2, "0");
+
+  document.getElementById("bar").style.width =
+    ((index + 1) / steps.length * 100) + "%";
+
+  back.hidden = index === 0;
+  next.textContent = s.final ? "Finish signup →" : "Continue →";
+  note.textContent = "";
+
+  panel.replaceChildren();
+
+  const heading = document.createElement("h1");
+  heading.textContent = s.title;
+
+  const description = document.createElement("p");
+  description.className = "sub";
+  description.textContent = s.sub;
+
+  panel.append(heading, description);
+
+  if (s.options) {
+    const list = document.createElement("div");
+    list.className = "options";
+
+    s.options.forEach(([emoji, title, desc]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className =
+        "option" +
+        (answers[s.key] === title ? " selected" : "");
+
+      const icon = document.createElement("span");
+      icon.className = "emoji";
+      icon.textContent = emoji;
+
+      const info = document.createElement("span");
+      info.className = "info";
+
+      const strong = document.createElement("strong");
+      strong.textContent = title;
+
+      const small = document.createElement("small");
+      small.textContent = desc;
+
+      info.append(strong, small);
+
+      const arrow = document.createElement("span");
+      arrow.className = "arrow";
+      arrow.textContent = "›";
+
+      button.append(icon, info, arrow);
+
+      button.addEventListener("click", () => {
+        answers[s.key] = title;
+
+        list.querySelectorAll(".option").forEach(option => {
+          option.classList.remove("selected");
+        });
+
+        button.classList.add("selected");
+        next.disabled = false;
+        note.textContent = "";
+      });
+
+      list.append(button);
+    });
+
+    panel.append(list);
+
+  } else if (s.fields) {
+    s.fields.forEach(field => {
+      const input = document.createElement("input");
+
+      input.type = "text";
+      input.placeholder = field.placeholder;
+      input.autocomplete = field.autocomplete;
+      input.value = answers[field.key] || "";
+      input.setAttribute("aria-label", field.placeholder);
+      input.required = true;
+
+      input.addEventListener("input", () => {
+        answers[field.key] = input.value.trim();
+        next.disabled = !stepValid(s);
+        note.textContent = "";
+      });
+
+      input.addEventListener("keydown", event => {
+        if (event.key === "Enter" && !next.disabled) {
+          next.click();
+        }
+      });
+
+      panel.append(input);
+    });
+
+  } else if (s.final) {
+    const summary = document.createElement("div");
+    summary.className = "options";
+
+    summary.append(
+      createSummaryRow(
+        "Full name",
+        `${answers.firstName || ""} ${answers.lastName || ""}`.trim()
+      ),
+      createSummaryRow("Your path", answers.role),
+      createSummaryRow("Your email", answers.email),
+      createSummaryRow("Main skill", answers.skill),
+      createSummaryRow("Password", "•••••••• (hidden)")
+    );
+
+    panel.append(summary);
+
+  } else {
+    const input = document.createElement("input");
+
+    input.type = s.type || "text";
+    input.placeholder = s.placeholder;
+    input.autocomplete =
+      s.key === "password" ? "new-password" : s.key;
+    input.value = answers[s.key] || "";
+    input.required = true;
+    input.setAttribute("aria-label", s.title);
+
+    input.addEventListener("input", () => {
+      answers[s.key] = input.value.trim();
+      next.disabled = !stepValid(s);
+      note.textContent = "";
+    });
+
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !next.disabled) {
+        next.click();
+      }
+    });
+
+    panel.append(input);
+  }
+
+  next.disabled = !stepValid(s);
+
+  const firstInput = panel.querySelector("input");
+  if (firstInput) firstInput.focus();
+}
+
+next.addEventListener("click", () => {
+  const s = steps[index];
+
+  if (!stepValid(s)) {
+    note.textContent = "Please complete this step correctly.";
+    return;
+  }
+
+  if (s.final) {
+    note.textContent =
+      "Demo complete! A secure backend is needed to create your account.";
+    next.disabled = true;
+    back.disabled = true;
+    return;
+  }
+
+  index++;
+  render();
+});
+
+back.addEventListener("click", () => {
+  if (index > 0) {
+    index--;
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
